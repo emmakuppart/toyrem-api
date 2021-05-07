@@ -25,7 +25,7 @@ SECRET_KEY = '&0#$22ihlj6p3h*kul)xbvfl4dw=(l5forj(90$&c!y9t$&0m1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -38,7 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework'
+    'django.contrib.postgres',
+    'rest_framework',
+    'corsheaders',
+    'django_apscheduler'
 ]
 
 MIDDLEWARE = [
@@ -49,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -77,8 +82,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'toyrem',
+        'USER': 'toyrem',
+        'PASSWORD': 'toyrem',
+        'HOST': '127.0.0.1',
+        'PORT': '5438'
     }
 }
 
@@ -120,3 +129,25 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+CORS_ORIGIN_ALLOW_ALL = False
+
+CORS_ORIGIN_WHITELIST = ('http://localhost:8081',)
+
+# https://docs.djangoproject.com/en/3.2/topics/cache/
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': '127.0.0.1:11211'
+    }
+}
+
+# https://docs.djangoproject.com/en/3.2/topics/http/sessions/
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+# https://github.com/jcass77/django-apscheduler
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+
+APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
