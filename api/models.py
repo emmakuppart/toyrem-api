@@ -1,5 +1,5 @@
 from django.db import models
-from .constants import SystemParameterKey
+from .constants import SystemParameterKey, PaymentType
 from django.contrib.postgres.search import SearchVectorExact
 
 
@@ -45,6 +45,15 @@ class ProductImage(models.Model):
     id = models.AutoField(primary_key=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     image = models.ImageField()
+
+
+class PaymentType(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.CharField(max_length=25, choices=[(tag.value, tag.value) for tag in PaymentType])
+    country = models.TextField(null=True, blank=True)
+    logo = models.ImageField(null=True, blank=True)
+    name = models.TextField(null=True, blank=True)
+    url = models.TextField(null=True, blank=True)
 
 
 class Cart(models.Model):

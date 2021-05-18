@@ -37,11 +37,12 @@ deactivate
 ```
 pip install django
 pip install djangorestframework
-pip install psycopg2 (Postgres andmebaas)
-python -m pip install Pillow (piltide haldus)
+pip install psycopg2 (või psycopg2-binary) (Postgres andmebaas)
+pip install Pillow (piltide haldus)
 pip install django-cors-headers (Päringuvõltsingu kaitse)
 pip install pymemcache (sessioonid)
 pip install django-apscheduler (taustaprotsessid)
+pip install requests (Veebipäringud)
 ```
 
 ### Rakenduse käivitamine (vaikimisi port 8000)
@@ -67,6 +68,18 @@ python manage.py createsuperuser
 
 ```
 docker-compose up
+```
+
+### Taustaprotsesside tööle panemine
+
+```
+python manage.py runapscheduler
+```
+
+### Abi
+
+```
+Kui tekib error "env/bin/python3: bad interpreter: No such file or directory", siis tasub virtuaalkeskkond lähtestada.
 ```
 
 ### Kasutatud materjalid

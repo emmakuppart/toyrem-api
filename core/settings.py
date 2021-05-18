@@ -148,6 +148,12 @@ CACHES = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 # https://github.com/jcass77/django-apscheduler
+# https://pypi.org/project/django-apscheduler/
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 
 APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
+
+# Maksekeskus
+PAYMENT_CENTER_API_BASE_URL = 'https://api.test.maksekeskus.ee/v1'
+PAYMENT_CENTER_PUBLIC_KEY = ''
+PAYMENT_CENTER_API_KEY = ''
