@@ -9,7 +9,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from .serializers import *
 from .models import *
-from .constants import SystemParameterKey
+from .constants import SystemParameterKey, Language
 
 
 CART_SESSION_ID = 'cart'
@@ -55,11 +55,20 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         categoriesIds = self.request.query_params.get('categoriesIds')
-        word = self.request.query_params.get('word')
+        code = self.request.query_params.get('code')
+        name = self.request.query_params.get('name')
+        lang = self.request.query_params.get('lang')
         if categoriesIds is not None:
             queryset = queryset.filter(category__id__in=categoriesIds)
-        if word is not None:
-            queryset = queryset.filter(name_eng__search=word)
+        if code is not None:
+            queryset = queryset.filter(product_code__contains=code)
+        if lang is not None and name is not None:
+            if Language(lang) == Language.et:
+                queryset = queryset.filter(name_est__contains=name)
+            if Language(lang) == Language.en:
+                queryset = queryset.filter(name_eng__contains=word)
+            if Language(lang) == Language.ru:
+                queryset = queryset.filter(name_rus__contains=word)
         return queryset
 
 

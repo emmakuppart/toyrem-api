@@ -38,20 +38,20 @@ class Product(models.Model):
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL)
     price = models.DecimalField(max_digits=16, decimal_places=2)
     quantity = models.IntegerField(default=0)
-    image = models.ImageField(null=True, blank=True)
+    image = models.ImageField(null=True, blank=True, upload_to='images')
 
 
 class ProductImage(models.Model):
     id = models.AutoField(primary_key=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    image = models.ImageField()
+    image = models.ImageField(upload_to='images')
 
 
 class PaymentType(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.CharField(max_length=25, choices=[(tag.value, tag.value) for tag in PaymentType])
     country = models.TextField(null=True, blank=True)
-    logo = models.ImageField(null=True, blank=True)
+    logo = models.ImageField(null=True, blank=True, upload_to='logos')
     name = models.TextField(null=True, blank=True)
     url = models.TextField(null=True, blank=True)
 

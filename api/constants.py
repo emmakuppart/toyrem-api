@@ -9,3 +9,9 @@ class PaymentType(Enum):
     card = 'CARD'
     cash = 'CASH'
     other = 'OTHER'
+
+
+class Language(Enum):
+    et = 'et'
+    en = 'en'
+    ru = 'ru'
