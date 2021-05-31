@@ -34,10 +34,34 @@ class ProductImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CartSerializer(serializers.ModelSerializer):
+class CartInsertSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
-        fields = '__all__'
+        fields = ('id', 'expires')
+
+class CartProductReadonlySerializer(serializers.ModelSerializer):    
+    class Meta:
+        model = Product
+        fields = (
+            'id', 
+            'name_est', 
+            'name_rus', 
+            'name_eng',
+            'image'
+        )
+
+class CartItemReadonlySerializer(serializers.ModelSerializer):   
+    product = CartProductReadonlySerializer(many=False, read_only=True) 
+    class Meta:
+        model = CartItem
+        fields = ('id', 'product', 'quantity')
+
+
+class CartReadonlySerializer(serializers.ModelSerializer):
+    cartitem_set = CartItemReadonlySerializer(many=True, required=False)
+    class Meta:
+        model = Cart
+        fields = ('id', 'expires', 'cartitem_set')
 
 
 class CartItemSerializer(serializers.ModelSerializer):   
