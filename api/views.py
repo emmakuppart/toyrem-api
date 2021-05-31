@@ -14,17 +14,6 @@ from .constants import SystemParameterKey, Language
 
 CART_SESSION_ID = 'cart'
 
-def cart_view(request, pk):
-    if request.method == 'GET':
-        queryset = Cart.objects.all()
-        serializer = CartSerializer(queryset, many=True)
-        return HttpResponse(serializer.data)
-    if request.method == 'DELETE':
-        queryset = CartItem.objects.all()
-        entity = get_object_or_404(queryset, pk=pk)
-        entity.delete()
-        return HttpResponse(CartSerializer(entity).data)
-
 class IsStaffOrSafe(BasePermission):
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
@@ -88,10 +77,19 @@ class ProductImageViewSet(viewsets.ModelViewSet):
 def get_session_expiration_time_in_seconds():
     return SystemParameter.objects.get(key=SystemParameterKey.session_expiration_date_in_seconds.value).value['value']
 
+def create_cart(request):
+    expires_in = get_session_expiration_time_in_seconds()
+    request.data['expires'] = now() + timedelta(seconds=expires_in)
+    serializer = CartInsertSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer = CartReadonlySerializer(serializer.save())
+    request.session[CART_SESSION_ID] = serializer.data
+    request.session.set_expiry(expires_in)
+    return Response(serializer.data)
 
 class CartViewSet(viewsets.ViewSet):
     def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ('list'):
             permission_classes = [IsAdminUser,]
         else:
             permission_classes = []
@@ -99,32 +97,30 @@ class CartViewSet(viewsets.ViewSet):
 
     def list(self, request):
         queryset = Cart.objects.all()
-        serializer = CartSerializer(queryset, many=True)
+        serializer = CartReadonlySerializer(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         queryset = Cart.objects.all()
         entity = get_object_or_404(queryset, pk=pk)
-        serializer = CartSerializer(entity)
+        serializer = CartReadonlySerializer(entity)
         return Response(serializer.data)
 
     def create(self, request):
         try :
-            return Response(request.session[CART_SESSION_ID])
+            cart_id = request.session[CART_SESSION_ID]['id']
+            entity = Cart.objects.get(pk=cart_id)
         except KeyError:
-            expires_in = get_session_expiration_time_in_seconds()
-            request.data['expires'] = now() + timedelta(seconds=expires_in)
-            serializer = CartSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            request.session[CART_SESSION_ID] = serializer.data
-            request.session.set_expiry(expires_in)
-            return Response(serializer.data)
+            return create_cart(request)
+        if entity is None:
+            return create_cart(request)
+        print(entity)
+        return Response(CartReadonlySerializer(entity).data)
 
     def destroy(self, request, pk=None):
         queryset = Cart.objects.all()
         entity = get_object_or_404(queryset, pk=pk)
-        serializer = CartSerializer(entity)
+        serializer = CartReadonlySerializer(entity)
         if request.session.is_staff is False and request.session[CART_SESSION_ID]['id'] != serializer['id'].value:
             return Response(data='Unknown cart!', status=HTTP_400_BAD_REQUEST)
         entity.delete()
@@ -133,14 +129,14 @@ class CartViewSet(viewsets.ViewSet):
 
 class CartItemViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ('retrieve', 'list'):
             permission_classes = [IsAdminUser,]
         else:
             permission_classes = []
         return [permission() for permission in permission_classes]
 
     def list(self, request):
-        queryset = CartItem.objects.all()
+        queryset = CartItem.objects.all() 
         serializer = CartItemSerializer(queryset, many=True)
         return Response(serializer.data)
 
