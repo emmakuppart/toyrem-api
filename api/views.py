@@ -9,8 +9,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from .serializers import *
 from .models import *
-from .constants import SystemParameterKey, Language
-
+from .constants import *
 
 CART_SESSION_ID = 'cart'
 
@@ -172,3 +171,43 @@ class CartItemViewSet(viewsets.ModelViewSet):
         entity.delete()
         return Response(serializer.data)
         
+class OrderViewSet(viewsets.ModelViewSet):
+    def get_permissions(self):
+        if self.action == 'list':
+            permission_classes = [IsAdminUser,]
+        else:
+            permission_classes = []
+        return [permission() for permission in permission_classes]
+
+    def list(self, request):
+        queryset = Order.objects.all() 
+        serializer = Order(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
+        if request.session[CART_SESSION_ID]['id'] != request.data['cart']:
+            return Response(data='Unknown cart!', status=HTTP_400_BAD_REQUEST) 
+        if len(Order.objects.filter(cart=request.data['cart'])) > 0:
+            return Response(data='Cart already has an associated order!', status=HTTP_400_BAD_REQUEST)
+        serializer = OrderSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def update(self, request, pk=None):
+        queryset = Order.objects.all()
+        entity = get_object_or_404(queryset, pk=pk)
+        serializer = OrderSerializer(entity)
+        if request.session[CART_SESSION_ID]['cart'] != serializer['cart'].value:
+            return Response(data='Expired cart!', status=HTTP_400_BAD_REQUEST)
+        entity.save(update_fields=["full_name", "email", "phone", "comment", "self_pickup"])
+        return Response(CartItemSerializer(entity).data)
+
+    def destroy(self, request, pk=None):
+        queryset = CartItem.objects.all()
+        entity = get_object_or_404(queryset, pk=pk)
+        serializer = CartItemSerializer(entity)
+        if request.session.is_staff is False and request.session[CART_SESSION_ID]['id'] != serializer['cart'].value:
+            return Response(data='Expired cart!', status=HTTP_400_BAD_REQUEST)
+        entity.delete()
+        return Response(serializer.data)

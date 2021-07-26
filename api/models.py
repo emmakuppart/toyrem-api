@@ -1,10 +1,8 @@
 from django.db import models
-from .constants import SystemParameterKey, PaymentType
+from .constants import *
 from django.contrib.postgres.search import SearchVectorExact
 
-
 models.CharField.register_lookup(SearchVectorExact)
-
 
 class SystemParameter(models.Model):
     key = models.CharField(max_length=100, primary_key=True, choices=[(tag.value, tag.value) for tag in SystemParameterKey])
@@ -13,7 +11,6 @@ class SystemParameter(models.Model):
 
     def __str__(self):
         return self.key
-
 
 class Category(models.Model):
     id = models.AutoField(primary_key=True)
@@ -24,7 +21,6 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name_est
-
 
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
@@ -40,12 +36,10 @@ class Product(models.Model):
     quantity = models.IntegerField(default=0)
     image = models.ImageField(null=True, blank=True, upload_to='images')
 
-
 class ProductImage(models.Model):
     id = models.AutoField(primary_key=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='images')
-
 
 class PaymentType(models.Model):
     id = models.AutoField(primary_key=True)
@@ -55,11 +49,9 @@ class PaymentType(models.Model):
     name = models.TextField(null=True, blank=True)
     url = models.TextField(null=True, blank=True)
 
-
 class Cart(models.Model):
     id = models.AutoField(primary_key=True)
     expires = models.DateTimeField()
-
 
 class CartItem(models.Model):
     id = models.AutoField(primary_key=True)
@@ -69,3 +61,13 @@ class CartItem(models.Model):
 
     class Meta:
         unique_together = ('product', 'cart',)
+
+class Order(models.Model):
+    id = models.AutoField(primary_key=True)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, null=True, blank=True)
+    comment = models.CharField(max_length=5000, null=True, blank=True)
+    shipping_type = models.CharField(max_length=30, choices=[(tag.value, tag.value) for tag in ShippingType])
+    smartpost_place_id = models.IntegerField(null=True, blank=True)

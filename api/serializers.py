@@ -1,13 +1,10 @@
 from rest_framework import serializers
-
-from .models import Category, Product, Cart, CartItem, ProductImage
-
+from .models import *
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'name_est', 'name_rus', 'name_eng', 'parent_category')
-
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -71,3 +68,10 @@ class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = ('id', 'product', 'cart', 'quantity')
+
+class OrderSerializer(serializers.ModelSerializer):   
+    cart = serializers.PrimaryKeyRelatedField(queryset=Cart.objects.all())
+
+    class Meta:
+        model = Order
+        fields = ('id', 'cart', 'full_name', 'email', 'phone', 'comment', 'self_pickup')
