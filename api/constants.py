@@ -17,3 +17,9 @@ class Language(Enum):
 class ShippingType(Enum):
     toyrem = 'TOYREM_OFFICE'
     itellaSmartpost = 'ITELLA_SMARTPOST'
+
+class OrderStatus(Enum):
+    received = 'RECEIVED'
+    paid = 'PAID'
+    shipped = 'SHIPPED'
+    completed = 'COMPLETED'

@@ -8,7 +8,6 @@ BASE_URL = 'toyrem-api/'
 router = routers.DefaultRouter()
 router.register(BASE_URL + r'category', views.CategoryViewSet)
 router.register(BASE_URL + r'product', views.ProductViewSet)
-router.register(BASE_URL + r'productimage', views.ProductImageViewSet)
 router.register(BASE_URL + r'cart', views.CartViewSet, basename='Cart')
 router.register(BASE_URL + r'cart-item', views.CartItemViewSet, basename='CartItem')
 router.register(BASE_URL + r'order', views.OrderViewSet, basename='Order')

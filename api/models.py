@@ -35,6 +35,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=16, decimal_places=2)
     quantity = models.IntegerField(default=0)
     image = models.ImageField(null=True, blank=True, upload_to='images')
+    is_for_sale = models.BooleanField(default=False)
 
 class ProductImage(models.Model):
     id = models.AutoField(primary_key=True)
@@ -71,3 +72,5 @@ class Order(models.Model):
     comment = models.CharField(max_length=5000, null=True, blank=True)
     shipping_type = models.CharField(max_length=30, choices=[(tag.value, tag.value) for tag in ShippingType])
     smartpost_place_id = models.IntegerField(null=True, blank=True)
+    status = models.CharField(max_length=30, choices=[(tag.value, tag.value) for tag in OrderStatus])
+    order_number = models.TextField()
